@@ -654,4 +654,17 @@ def generateUtil():
     util.write('\n')
 
     util.write('#endif /* _UTIL */\n')
-        
+
+
+#Generate Contants
+def generatePortConfig(port):
+    ports = open("files/portConfig.txt", "w")
+
+    ports.write('ucli\n')
+    ports.write('pm\n')
+    ports.write(f'port-add {port}/- 10G NONE\n')
+    ports.write(f'port-enb {port}/-\n')
+    ports.write(f'an-set {port}/- 2 \n')
+    ports.write(f'port-dis {port}/-\n')
+    ports.write(f'port-enb {port}/-\n')
+    ports.write('show\n')
