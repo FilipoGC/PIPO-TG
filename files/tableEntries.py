@@ -98,14 +98,14 @@ data = pktgen_app_cfg_table.make_data([gc.DataTuple('timer_nanosec', 10),
                                 gc.DataTuple('pkt_counter', 0),
                                 gc.DataTuple('trigger_counter', 0)],
                                 'trigger_timer_periodic')
-pktgen_app_cfg_table.entry_add(
+pktgen_app_cfg_table.entry_mod(
   target,
   [pktgen_app_cfg_table.make_key([gc.KeyTuple('app_id', g_timer_app_id)])],
   [data])
 
 
 print("configure packet buffer")
-pktgen_pkt_buffer_table.entry_add(
+pktgen_pkt_buffer_table.entry_mod(
   target,
   [pktgen_pkt_buffer_table.make_key([gc.KeyTuple('pkt_buffer_offset', buff_offset),
                                   gc.KeyTuple('pkt_buffer_size', (pktlen - 6))])],

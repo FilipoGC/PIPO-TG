@@ -55,7 +55,7 @@ parser SwitchIngressParser(
 
   state parse_pktgen_timer {
       packet.extract(hdr.timer);
-t     ransition accept;
+      transition accept;
   }
 
   state parse_pktgen_port_down {

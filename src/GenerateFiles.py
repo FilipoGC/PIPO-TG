@@ -116,7 +116,7 @@ def generatePy(defaultPort, HWport):
     script.write("                                gc.DataTuple('pkt_counter', 0),\n")
     script.write("                                gc.DataTuple('trigger_counter', 0)],\n")
     script.write("                                'trigger_timer_periodic')\n")
-    script.write("pktgen_app_cfg_table.entry_add(\n")
+    script.write("pktgen_app_cfg_table.entry_mod(\n")
     script.write("  target,\n")
     script.write("  [pktgen_app_cfg_table.make_key([gc.KeyTuple('app_id', g_timer_app_id)])],\n")
     script.write("  [data])\n")
@@ -125,7 +125,7 @@ def generatePy(defaultPort, HWport):
 
 
     script.write('print("configure packet buffer")\n')
-    script.write("pktgen_pkt_buffer_table.entry_add(\n")
+    script.write("pktgen_pkt_buffer_table.entry_mod(\n")
     script.write("  target,\n")
     script.write("  [pktgen_pkt_buffer_table.make_key([gc.KeyTuple('pkt_buffer_offset', buff_offset),\n")
     script.write("                                  gc.KeyTuple('pkt_buffer_size', (pktlen - 6))])],\n")
