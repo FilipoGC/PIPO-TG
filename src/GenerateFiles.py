@@ -228,7 +228,7 @@ def generateP4():
 
     filep4.write('  state parse_pktgen_timer {\n')
     filep4.write('      packet.extract(hdr.timer);\n')
-    filep4.write('t     ransition accept;\n')
+    filep4.write('      transition accept;\n')
     filep4.write('  }\n')
     filep4.write('\n')
 

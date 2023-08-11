@@ -2,6 +2,6 @@ from src.data import *
 
 Gerador = generator("pipo")
 
-Gerador.addGenerationPort = 00
-Gerador.addOutputPort = 99
+Gerador.addGenerationPort = 68
+Gerador.addOutputPort = 128
 Gerador.generate()
