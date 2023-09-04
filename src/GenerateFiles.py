@@ -1,7 +1,7 @@
 #Generate .py file
-def generatePy(defaultPort, HWport):
+def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, throughput):
     script = open("files/tableEntries.py", "w")
-	
+    
     script.write('#!/usr/bin/env python\n')
     script.write('import sys\n')
     script.write('import os\n')
@@ -37,6 +37,8 @@ def generatePy(defaultPort, HWport):
     script.write('target = gc.Target(device_id=0, pipe_id=0xffff)\n')
     script.write('t_cfg_table = bfrt_info.table_get("$mirror.cfg")\n')
     script.write('t_fwd_table = bfrt_info.table_get("t")\n')
+    script.write('meter = bfrt_info.table_get("meter")\n')
+
     script.write('\n')
 
     script.write('# ####### t_table ########\n')
@@ -55,6 +57,34 @@ def generatePy(defaultPort, HWport):
     script.write('packet_id = [0,1] # 0,1\n')
     script.write(f'o_port = {HWport}     # HW port to send the packets\n')
     script.write('\n')
+
+
+    #meters
+
+    if throughput_defined and throughput_mode == 'meter':
+
+        th = str(int(throughput * 1000))
+
+        script.write('meter_cfg = []\n')
+
+        script.write('meter_cfg.append([0,\n') 
+        script.write('                  0,\n') 
+        script.write(f'                  {th},\n') 
+        script.write('                  0,\n') 
+        script.write('                  1000])\n')
+
+
+        script.write('meter.entry_add(\n')
+        script.write('          target,\n')
+        script.write("          [meter.make_key([gc.KeyTuple('$METER_INDEX', meter_cfg[0][0])])],\n")
+        script.write("          [meter.make_data([gc.DataTuple('$METER_SPEC_CIR_KBPS', meter_cfg[0][1]),\n")
+        script.write("                            gc.DataTuple('$METER_SPEC_PIR_KBPS', meter_cfg[0][2]),\n")
+        script.write("                            gc.DataTuple('$METER_SPEC_CBS_KBITS', meter_cfg[0][3]),\n")
+        script.write("                            gc.DataTuple('$METER_SPEC_PBS_KBITS', meter_cfg[0][4])],\n") 
+        script.write('                            None)])\n')
+
+    #fimMeters
+
 
     script.write('# for i in range(4):\n')
     script.write('#     for j in range(2):\n')
@@ -145,24 +175,24 @@ def generatePy(defaultPort, HWport):
     script.write('\n')
 
 
-    script.write("time.sleep(10)\n")
-    script.write('\n')
+    #script.write("time.sleep(10)\n")
+    #script.write('\n')
 
     # Disable the application.
-    script.write('print("disable pktgen")\n')
-    script.write("pktgen_app_cfg_table.entry_mod(\n")
-    script.write("  target,\n")
-    script.write("  [pktgen_app_cfg_table.make_key([gc.KeyTuple('app_id', g_timer_app_id)])],\n")
-    script.write("  [pktgen_app_cfg_table.make_data([gc.DataTuple('app_enable', bool_val=False)],\n")
-    script.write("                                  'trigger_timer_one_shot')])\n")
+    #script.write('print("disable pktgen")\n')
+    #script.write("pktgen_app_cfg_table.entry_mod(\n")
+    #script.write("  target,\n")
+    #script.write("  [pktgen_app_cfg_table.make_key([gc.KeyTuple('app_id', g_timer_app_id)])],\n")
+    #script.write("  [pktgen_app_cfg_table.make_data([gc.DataTuple('app_enable', bool_val=False)],\n")
+    #script.write("                                  'trigger_timer_one_shot')])\n")
 
     script.close()
 
 #Generate .p4 file
-def generateP4():
+def generateP4(throughput_defined, throughput_mode):
 
     filep4 = open("files/pipoTG.p4", "w")
-	
+    
     filep4.write('/*******************************************************************************\n')
     filep4.write('* BAREFOOT NETWORKS CONFIDENTIAL & PROPRIETARY\n')
     filep4.write('*\n')
@@ -265,6 +295,11 @@ def generateP4():
     filep4.write('      inout ingress_intrinsic_metadata_for_tm_t ig_intr_tm_md) {\n')
     filep4.write('\n')
 
+    #meter
+
+    filep4.write('  Meter<bit<10>>(10, MeterType_t.BYTES) meter;\n')
+    filep4.write('  bit<2> color = 0;\n\n')
+
     filep4.write('  action drop() {\n')
     filep4.write('      ig_intr_dprsr_md.drop_ctl = 0x1;\n')
     filep4.write('  }\n')
@@ -317,7 +352,18 @@ def generateP4():
     filep4.write('          drop();\n')
     filep4.write('      }\n')
     filep4.write('\n')
-            
+
+    #meters
+    if throughput_defined and throughput_mode == 'meter': 
+        filep4.write('      if (hdr.timer.isValid()) {\n')   
+        filep4.write('          color = (bit<2>) meter.execute(0);\n')
+        filep4.write('          if (color >= 2) {\n')
+        filep4.write('                drop();\n')
+        filep4.write('          }\n')
+        filep4.write('      }\n')
+
+    #fim meters
+
     filep4.write('      // No need for egress processing, skip it and use empty controls for egress.\n')
     filep4.write('      ig_intr_tm_md.bypass_egress = 1w1;\n')
     filep4.write('  }\n')
@@ -342,7 +388,7 @@ def generateP4():
 #Generate Headers
 def generateHeader():
     headers = open("files/headers.p4", "w")
-	
+    
     headers.write('/*******************************************************************************\n')
     headers.write('* BAREFOOT NETWORKS CONFIDENTIAL & PROPRIETARY\n')
     headers.write('*\n')
@@ -657,14 +703,16 @@ def generateUtil():
 
 
 #Generate Contants
-def generatePortConfig(port):
+def generatePortConfig(port, port_bw):
     ports = open("files/portConfig.txt", "w")
 
     ports.write('ucli\n')
     ports.write('pm\n')
-    ports.write(f'port-add {port}/- 10G NONE\n')
+    ports.write(f'port-add {port}/- {port_bw} NONE\n')
     ports.write(f'port-enb {port}/-\n')
     ports.write(f'an-set {port}/- 2 \n')
     ports.write(f'port-dis {port}/-\n')
     ports.write(f'port-enb {port}/-\n')
     ports.write('show\n')
+    ports.write('exit\n')
+    ports.write('exit\n')
