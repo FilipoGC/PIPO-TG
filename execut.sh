@@ -15,8 +15,10 @@ sleep 20
 #Install RULES
 nohup python3 files/tableEntries.py > log &
 
-#Config PORTS
+#rate-show
 /home/admin12/bf-sde-9.9.0/run_bfshell.sh -f files/view
 
 #python3 -m p4runtime_sh --grpc-addr 127.0.0.1:9090 \
 #  --device-id 0 --election-id 0,1 --config <p4info.txt>,<pipeline config>
+
+killall bf_switchd
