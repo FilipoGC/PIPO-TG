@@ -20,7 +20,14 @@ class generator:
 		self.output_port = port
 		self.channel = channel
 		self.port_bw = bw
-
+  
+	#pps = packets per second, len = packet size
+	def addIP(src = None, dst = None, pps = None, len = None):
+		print("src:", src)
+		print("dst:", dst)
+		print("pps:", pps)
+		print("length:", pps)	
+      
 	def addThroughput(self, throughput, mode):
 		self.throughput_defined = True
 		self.throughput = throughput
