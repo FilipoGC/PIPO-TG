@@ -37,7 +37,9 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.write('target = gc.Target(device_id=0, pipe_id=0xffff)\n')
     script.write('t_cfg_table = bfrt_info.table_get("$mirror.cfg")\n')
     script.write('t_fwd_table = bfrt_info.table_get("t")\n')
-    script.write('meter = bfrt_info.table_get("meter")\n')
+
+    if throughput_defined and throughput_mode == 'meter':
+        script.write('meter = bfrt_info.table_get("meter")\n')
 
     script.write('\n')
 
@@ -68,10 +70,10 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
         script.write('meter_cfg = []\n')
 
         script.write('meter_cfg.append([0,\n') 
-        script.write('                  0,\n') 
         script.write(f'                  {th},\n') 
-        script.write('                  0,\n') 
-        script.write('                  1000])\n')
+        script.write(f'                  {th},\n') 
+        script.write('                  1,\n') 
+        script.write('                  1])\n')
 
 
         script.write('meter.entry_add(\n')
@@ -85,6 +87,15 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
 
     #fimMeters
 
+
+    #port shaping
+    if throughput_defined and throughput_mode == 'port_shaping':
+        th = str(int(throughput * 1000))
+
+        script.write('p_shaping = bfrt_info.table_get("tf1.tm.port.sched_cfg")\n')
+        script.write('p_shaping2 = bfrt_info.table_get("tf1.tm.port.sched_shaping")\n')
+        script.write(f"p_shaping.entry_mod(target, [p_shaping.make_key([gc.KeyTuple('dev_port', {HWport})])], [p_shaping.make_data([gc.DataTuple('max_rate_enable', bool_val=True)])])\n")
+        script.write(f"p_shaping2.entry_mod(target, [p_shaping2.make_key([gc.KeyTuple('dev_port', {HWport})])], [p_shaping2.make_data([gc.DataTuple('unit', str_val='BPS'), gc.DataTuple('provisioning', str_val='MIN_ERROR'), gc.DataTuple('max_rate', {th}), gc.DataTuple('max_burst_size', 1000)])])\n")
 
     script.write('# for i in range(4):\n')
     script.write('#     for j in range(2):\n')
@@ -296,9 +307,9 @@ def generateP4(throughput_defined, throughput_mode):
     filep4.write('\n')
 
     #meter
-
-    filep4.write('  Meter<bit<10>>(10, MeterType_t.BYTES) meter;\n')
-    filep4.write('  bit<2> color = 0;\n\n')
+    if throughput_defined and throughput_mode == 'meter':
+        filep4.write('  Meter<bit<10>>(10, MeterType_t.BYTES) meter;\n')
+        filep4.write('  bit<2> color = 0;\n\n')
 
     filep4.write('  action drop() {\n')
     filep4.write('      ig_intr_dprsr_md.drop_ctl = 0x1;\n')
@@ -357,7 +368,7 @@ def generateP4(throughput_defined, throughput_mode):
     if throughput_defined and throughput_mode == 'meter': 
         filep4.write('      if (hdr.timer.isValid()) {\n')   
         filep4.write('          color = (bit<2>) meter.execute(0);\n')
-        filep4.write('          if (color >= 2) {\n')
+        filep4.write('          if (color >= 3) {\n')
         filep4.write('                drop();\n')
         filep4.write('          }\n')
         filep4.write('      }\n')
