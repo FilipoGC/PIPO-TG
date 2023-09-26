@@ -70,7 +70,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
         script.write('meter_cfg = []\n')
 
         script.write('meter_cfg.append([0,\n') 
-        script.write('                  {th},\n') 
+        script.write(f'                  {th},\n') 
         script.write(f'                  {th},\n') 
         script.write('                  1,\n') 
         script.write('                  1])\n')
@@ -94,8 +94,8 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
 
         script.write('p_shaping = bfrt_info.table_get("tf1.tm.port.sched_cfg")\n')
         script.write('p_shaping2 = bfrt_info.table_get("tf1.tm.port.sched_shaping")\n')
-        script.write("p_shaping.entry_mod(target, [p_shaping.make_key([gc.KeyTuple('dev_port', {HWport})])], [p_shaping.make_data([gc.DataTuple('max_rate_enable', bool_val=True)])])\n")
-        script.write("p_shaping2.entry_mod(target, [p_shaping2.make_key([gc.KeyTuple('dev_port', {HWport})])], [p_shaping2.make_data([gc.DataTuple('unit', str_val='BPS'), gc.DataTuple('provisioning', str_val='MIN_ERROR'), gc.DataTuple('max_rate', {th}), gc.DataTuple('max_burst_size', 1000)])])\n")
+        script.write(f"p_shaping.entry_mod(target, [p_shaping.make_key([gc.KeyTuple('dev_port', {HWport})])], [p_shaping.make_data([gc.DataTuple('max_rate_enable', bool_val=True)])])\n")
+        script.write(f"p_shaping2.entry_mod(target, [p_shaping2.make_key([gc.KeyTuple('dev_port', {HWport})])], [p_shaping2.make_data([gc.DataTuple('unit', str_val='BPS'), gc.DataTuple('provisioning', str_val='MIN_ERROR'), gc.DataTuple('max_rate', {th}), gc.DataTuple('max_burst_size', 1000)])])\n")
 
     script.write('# for i in range(4):\n')
     script.write('#     for j in range(2):\n')
