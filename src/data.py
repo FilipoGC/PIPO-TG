@@ -26,7 +26,7 @@ class generator:
 		print("src:", src)
 		print("dst:", dst)
 		print("pps:", pps)
-		print("length:", pps)	
+		print("len:", pps)	
       
 	def addThroughput(self, throughput, mode):
 		self.throughput_defined = True
