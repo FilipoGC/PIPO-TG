@@ -17,7 +17,7 @@ class generator:
 		self.tos = '0x0'
 		self.len =  None
 		self.frag = 0
-		self. flags = None
+		self.flags = None
 		self.ttl = 61
 		self.proto = 'udp'
 		self.chksum = '0x66df'
