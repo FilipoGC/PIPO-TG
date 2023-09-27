@@ -42,7 +42,7 @@ class generator:
 		self.tos = tos
 		self.len =  len
 		self.frag = frag
-		self. flags = flags
+		self.flags = flags
 		self.ttl = ttl
 		self.proto = proto
 		self.chksum = chksum
