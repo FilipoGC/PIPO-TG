@@ -129,7 +129,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.write('print("Create packet")\n')
 
     if obj.IP_defined:
-        script.write(f'p = testutils.simple_ip_packet(pktlen={obj.pktLen}, eth_dst={obj.eth_dst}, eth_src={obj.eth_src}, dl_vlan_enable={obj.dl_vlan_enable}, vlan_vid={obj.vlan_vid}, vlan_pcp={obj.vlan_pcp}, dl_vlan_cfi={obj.dl_vlan_cfi}, ip_src={obj.ip_src}, ip_dst={obj.ip_dst}, ip_tos{obj.ip_tos}, ip_ecn={obj.ip_ecn}, ip_dscp={obj.ip_dscp}, ip_ttl={obj.ip_ttl}, ip_id={obj.ip_id}, ip_ihl={obj.ip_ihl}, ip_options={obj.ip_options}, ip_proto={obj.ip_proto})\n')
+        script.write(f'p = testutils.simple_ip_packet(pktlen={obj.pktLen}, eth_dst="{obj.eth_dst}", eth_src="{obj.eth_src}", dl_vlan_enable={obj.dl_vlan_enable}, vlan_vid={obj.vlan_vid}, vlan_pcp={obj.vlan_pcp}, dl_vlan_cfi={obj.dl_vlan_cfi}, ip_src="{obj.ip_src}", ip_dst="{obj.ip_dst}", ip_tos={obj.ip_tos}, ip_ecn={obj.ip_ecn}, ip_dscp={obj.ip_dscp}, ip_ttl={obj.ip_ttl}, ip_id={obj.ip_id}, ip_ihl={obj.ip_ihl}, ip_options={obj.ip_options}, ip_proto={obj.ip_proto})\n')
     elif obj.eth_defined:
         script.write('p = testutils.simple_eth_packet(pktlen=pktlen)\n')
     script.write('\n')
