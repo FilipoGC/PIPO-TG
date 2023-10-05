@@ -204,7 +204,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.close()
 
 #Generate .p4 file
-def generateP4(throughput_defined, throughput_mode):
+def generateP4(throughput_defined, throughput_mode, full_obj):
 
     filep4 = open("files/pipoTG.p4", "w")
     
@@ -243,8 +243,15 @@ def generateP4(throughput_defined, throughput_mode):
 
 
     filep4.write('struct headers {\n')
-    filep4.write('  pktgen_timer_header_t timer;\n')
+    filep4.write('  pktgen_timer_header_t     timer;\n')
     filep4.write('  pktgen_port_down_header_t port_down;\n')
+    if full_obj.eth_defined or full_obj.IP_defined or full_obj.tcp_defined or full_obj.udp_defined:
+        filep4.write('  ethernet_h    ethernet;\n')
+        filep4.write('  ipv4_h        ipv4;\n')
+        filep4.write('  tcp_h         tcp;\n')
+        filep4.write('  udp_h         udp;\n')
+    for hd in full_obj.headers:
+        filep4.write(f'  {hd.name}_h    {hd.name};\n')
     filep4.write('}\n')
     filep4.write('\n')
 
@@ -273,9 +280,48 @@ def generateP4(throughput_defined, throughput_mode):
 
     filep4.write('  state parse_pktgen_timer {\n')
     filep4.write('      packet.extract(hdr.timer);\n')
-    filep4.write('      transition accept;\n')
+    if full_obj.eth_defined:
+        filep4.write('      transition parse_ethernet;;\n')
+    else:
+        filep4.write('      transition accept;\n')
     filep4.write('  }\n')
     filep4.write('\n')
+
+
+    #state to parse eth
+    if full_obj.eth_defined or full_obj.IP_defined or full_obj.tcp_defined or full_obj.udp_defined:
+        filep4.write('  state parse_ethernet {\n')
+        filep4.write('      packet.extract(hdr.ethernet);\n')
+        filep4.write('      transition select(hdr.ethernet.ether_type) {\n')
+        filep4.write('          ETHERTYPE_IPV4:    parse_ipv4;\n')
+        filep4.write('          default:           accept;\n')
+        filep4.write('      }\n')
+        filep4.write('  }\n')
+
+
+    if full_obj.eth_defined or full_obj.IP_defined or full_obj.tcp_defined or full_obj.udp_defined:
+        filep4.write('  state parse_ipv4 {\n')
+        filep4.write('      packet.extract(hdr.ipv4);\n')
+        filep4.write('      transition select(hdr.ipv4.protocol) {\n')
+        filep4.write('          IP_PROTOCOLS_UDP:    parse_udp;\n')
+        filep4.write('          IP_PROTOCOLS_TCP:    parse_tcp;\n')
+        filep4.write('          default:             accept;\n')
+        filep4.write('      }\n')
+        filep4.write('  }\n')
+
+    if full_obj.eth_defined or full_obj.IP_defined or full_obj.tcp_defined or full_obj.udp_defined:
+        filep4.write('  state parse_tcp {\n')
+        filep4.write('      packet.extract(hdr.tcp);\n')
+        filep4.write('      transition accept;\n')
+        filep4.write('  }\n')
+
+    if full_obj.eth_defined or full_obj.IP_defined or full_obj.tcp_defined or full_obj.udp_defined:
+        filep4.write('  state parse_udp {\n')
+        filep4.write('      packet.extract(hdr.udp);\n')
+        filep4.write('      transition accept;\n')
+        filep4.write('  }\n')
+
+        
 
     filep4.write('  state parse_pktgen_port_down {\n')
     filep4.write('      packet.extract(hdr.port_down);\n')
@@ -359,6 +405,11 @@ def generateP4(throughput_defined, throughput_mode):
     filep4.write('\n')
 
     filep4.write('  apply {\n')
+
+
+    for hd in full_obj.headers:
+        filep4.write(f'      hdr.{hd.name}.setValid();\n')
+
     filep4.write('      if (hdr.timer.isValid()) {\n')
     filep4.write('          t.apply();\n')
     filep4.write('      } else if (hdr.port_down.isValid()) {\n')
@@ -401,7 +452,7 @@ def generateP4(throughput_defined, throughput_mode):
     filep4.close()
 
 #Generate Headers
-def generateHeader():
+def generateHeader(header_list, eth_defined, IP_defined, udp_defined, tcp_defined):
     headers = open("files/headers.p4", "w")
     
     headers.write('/*******************************************************************************\n')
@@ -448,12 +499,14 @@ def generateHeader():
     headers.write('const ip_protocol_t IP_PROTOCOLS_UDP = 17;\n')
     headers.write('\n')
 
-    headers.write('header ethernet_h {\n')
-    headers.write(' mac_addr_t dst_addr;\n')
-    headers.write(' mac_addr_t src_addr;\n')
-    headers.write(' bit<16> ether_type;\n')
-    headers.write('}\n')
-    headers.write('\n')
+
+    if eth_defined:
+        headers.write('header ethernet_h {\n')
+        headers.write(' mac_addr_t dst_addr;\n')
+        headers.write(' mac_addr_t src_addr;\n')
+        headers.write(' bit<16> ether_type;\n')
+        headers.write('}\n')
+        headers.write('\n')
 
 
     headers.write('header vlan_tag_h {\n')
@@ -472,21 +525,23 @@ def generateHeader():
     headers.write('}\n')
     headers.write('\n')
 
-    headers.write('header ipv4_h {\n')
-    headers.write(' bit<4> version;\n')
-    headers.write(' bit<4> ihl;\n')
-    headers.write(' bit<8> diffserv;\n')
-    headers.write(' bit<16> total_len;\n')
-    headers.write(' bit<16> identification;\n')
-    headers.write(' bit<3> flags;\n')
-    headers.write(' bit<13> frag_offset;\n')
-    headers.write(' bit<8> ttl;\n')
-    headers.write(' bit<8> protocol;\n')
-    headers.write(' bit<16> hdr_checksum;\n')
-    headers.write(' ipv4_addr_t src_addr;\n')
-    headers.write(' ipv4_addr_t dst_addr;\n')
-    headers.write('}\n')
-    headers.write('\n')
+
+    if IP_defined:
+        headers.write('header ipv4_h {\n')
+        headers.write(' bit<4> version;\n')
+        headers.write(' bit<4> ihl;\n')
+        headers.write(' bit<8> diffserv;\n')
+        headers.write(' bit<16> total_len;\n')
+        headers.write(' bit<16> identification;\n')
+        headers.write(' bit<3> flags;\n')
+        headers.write(' bit<13> frag_offset;\n')
+        headers.write(' bit<8> ttl;\n')
+        headers.write(' bit<8> protocol;\n')
+        headers.write(' bit<16> hdr_checksum;\n')
+        headers.write(' ipv4_addr_t src_addr;\n')
+        headers.write(' ipv4_addr_t dst_addr;\n')
+        headers.write('}\n')
+        headers.write('\n')
 
     headers.write('header ipv6_h {\n')
     headers.write(' bit<4> version;\n')
@@ -500,27 +555,30 @@ def generateHeader():
     headers.write('}\n')
     headers.write('\n')
 
-    headers.write('header tcp_h {\n')
-    headers.write(' bit<16> src_port;\n')
-    headers.write(' bit<16> dst_port;\n')
-    headers.write(' bit<32> seq_no;\n')
-    headers.write(' bit<32> ack_no;\n')
-    headers.write(' bit<4> data_offset;\n')
-    headers.write(' bit<4> res;\n')
-    headers.write(' bit<8> flags;\n')
-    headers.write(' bit<16> window;\n')
-    headers.write(' bit<16> checksum;\n')
-    headers.write(' bit<16> urgent_ptr;\n')
-    headers.write('}\n')
-    headers.write('\n')
 
-    headers.write('header udp_h {\n')
-    headers.write(' bit<16> src_port;\n')
-    headers.write(' bit<16> dst_port;\n')
-    headers.write(' bit<16> hdr_length;\n')
-    headers.write(' bit<16> checksum;\n')
-    headers.write('}\n')
-    headers.write('\n')
+    if tcp_defined:
+        headers.write('header tcp_h {\n')
+        headers.write(' bit<16> src_port;\n')
+        headers.write(' bit<16> dst_port;\n')
+        headers.write(' bit<32> seq_no;\n')
+        headers.write(' bit<32> ack_no;\n')
+        headers.write(' bit<4> data_offset;\n')
+        headers.write(' bit<4> res;\n')
+        headers.write(' bit<8> flags;\n')
+        headers.write(' bit<16> window;\n')
+        headers.write(' bit<16> checksum;\n')
+        headers.write(' bit<16> urgent_ptr;\n')
+        headers.write('}\n')
+        headers.write('\n')
+
+    if udp_defined:
+        headers.write('header udp_h {\n')
+        headers.write(' bit<16> src_port;\n')
+        headers.write(' bit<16> dst_port;\n')
+        headers.write(' bit<16> hdr_length;\n')
+        headers.write(' bit<16> checksum;\n')
+        headers.write('}\n')
+        headers.write('\n')
 
     headers.write('header icmp_h {\n')
     headers.write(' bit<8> type_;\n')
@@ -575,14 +633,15 @@ def generateHeader():
     headers.write('}\n')
     headers.write('\n')
 
-    headers.write('struct header_t {\n')
-    headers.write(' ethernet_h ethernet;\n')
-    headers.write(' vlan_tag_h vlan_tag;\n')
-    headers.write(' ipv4_h ipv4;\n')
-    headers.write(' ipv6_h ipv6;\n')
-    headers.write(' tcp_h tcp;\n')
-    headers.write(' udp_h udp;\n')
-    headers.write('\n')
+    headers.write('// Customized headers (if exist)\n')
+    for hdr in header_list:
+        headers.write(f'\nheader {hdr.name}_h {{\n')
+        for field in hdr.fields:
+            headers.write(f'\tbit<{field.size}> {field.name};\n')
+        headers.write('}\n')
+
+
+
 
     headers.write(' // Add more headers here.\n')
     headers.write('}\n')

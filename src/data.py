@@ -36,6 +36,12 @@ class generator:
 		self.type = 'Ipv4'
 		self.data =  None
 
+		#defineds
+		self.eth_defined = False
+		self.IP_defined = False
+		self.udp_defined = False
+		self.tcp_defined = False
+
 		#new params
 		self.eth_dst = "00:01:02:03:04:05"
 		self.eth_src = "00:06:07:08:09:0a"
@@ -43,7 +49,6 @@ class generator:
 		self.ip_dst = "192.168.0.2"
 		self.ip_proto = 0
 		self.ip_tos = 0
-		self.IP_defined = False
 		self.vlan_vid = 0
 		self.vlan_pcp = 0
 		self.dl_vlan_cfi = 0
@@ -184,8 +189,8 @@ class generator:
 
 	def generate(self):
 		generatePy(self.generation_port, self.channel, self.throughput_defined, self.throughput_mode, self.throughput, self)
-		generateP4(self.throughput_defined, self.throughput_mode)
-		generateHeader()
+		generateP4(self.throughput_defined, self.throughput_mode, self)
+		generateHeader(self.headers, self.eth_defined, self.IP_defined, self.udp_defined, self.tcp_defined)
 		generateUtil()
-		self.printHeaders()
 		generatePortConfig(self.output_port, self.port_bw)
+		self.printHeaders()
