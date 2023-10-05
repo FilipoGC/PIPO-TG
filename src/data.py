@@ -52,7 +52,7 @@ class generator:
 		self.vlan_vid = 0
 		self.vlan_pcp = 0
 		self.dl_vlan_cfi = 0
-		self.d1_vlan_enable = False
+		self.dl_vlan_enable = False
 		self.ip_ecn=None
 		self.ip_dscp=None
 		self.ip_ttl=64
@@ -129,7 +129,7 @@ class generator:
 		self.vlan_vid = vlan_vid
 		self.vlan_pcp = vlan_pcp
 		self.dl_vlan_cfi = dl_vlan_cfi
-		self.d1_vlan_enable = d1_vlan_enable
+		self.dl_vlan_enable = dl_vlan_enable
 		self.ip_ecn= ip_ecn
 		self.ip_dscp= ip_dscp
 		self.ip_ttl= ip_ttl
