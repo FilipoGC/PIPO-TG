@@ -191,7 +191,7 @@ class generator:
 
 	def generate(self):
 		
-		if len(self.headers) == 0 and not self.eth_defined and not self.IP_defined and not self.udp_defined and not self.tcp_defined:
+		if not self.eth_defined and not self.IP_defined and not self.udp_defined and not self.tcp_defined:
 			self.eth_defined = True		
 
 		generatePy(self.generation_port, self.channel, self.throughput_defined, self.throughput_mode, self.throughput, self)
