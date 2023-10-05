@@ -1,5 +1,5 @@
 #Generate .py file
-def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, throughput):
+def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, throughput, obj):
     script = open("files/tableEntries.py", "w")
     
     script.write('#!/usr/bin/env python\n')
@@ -127,7 +127,11 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
 
     script.write('# build expected generated packets\n')
     script.write('print("Create packet")\n')
-    script.write('p = testutils.simple_eth_packet(pktlen=pktlen)\n')
+
+    if obj.IP_defined:
+        script.write(f'p = testutils.simpl_ip_packet(obj.pktLen, obj.eth_dst, obj.eth_src, obj.dl_vlan_enable, obj.vlan_vid, obj.vlan_pcp, obj.dl_vlan_cfi, obj.ip_src, obj.ip_dst, obj.ip_tos, obj.ip_ecn, obj.ip_dscp, obj.ip_ttl, obj.ip_id, obj.ip_ihl, obj.ip_options, obj.ip_proto)\n')
+    else:
+        script.write('p = testutils.simple_eth_packet(pktlen=pktlen)\n')
     script.write('\n')
 
     script.write('print("enable pktgen port")\n')
@@ -141,7 +145,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
 
     script.write('# Configure the packet generation timer application\n')
     script.write('print("configure pktgen application")\n')
-    script.write("data = pktgen_app_cfg_table.make_data([gc.DataTuple('timer_nanosec', 10),\n")
+    script.write("data = pktgen_app_cfg_table.make_data([gc.DataTuple('timer_nanosec', 1),\n")
     script.write("                                gc.DataTuple('app_enable', bool_val=False),\n")
     script.write("                                gc.DataTuple('pkt_len', (pktlen - 6)),\n")
     script.write("                                gc.DataTuple('pkt_buffer_offset', buff_offset),\n")
@@ -149,10 +153,10 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.write("                                gc.DataTuple('increment_source_port', bool_val=False),\n")
     script.write("                                gc.DataTuple('batch_count_cfg', b_count - 1),\n")
     script.write("                                gc.DataTuple('packets_per_batch_cfg', p_count - 1),\n")
-    script.write("                                gc.DataTuple('ibg', 1),\n")
+    script.write("                                gc.DataTuple('ibg', 0),\n")
     script.write("                                gc.DataTuple('ibg_jitter', 0),\n")
-    script.write("                                gc.DataTuple('ipg', 1000),\n")
-    script.write("                                gc.DataTuple('ipg_jitter', 500),\n")
+    script.write("                                gc.DataTuple('ipg', 0),\n")
+    script.write("                                gc.DataTuple('ipg_jitter', 0),\n")
     script.write("                                gc.DataTuple('batch_counter', 0),\n")
     script.write("                                gc.DataTuple('pkt_counter', 0),\n")
     script.write("                                gc.DataTuple('trigger_counter', 0)],\n")
