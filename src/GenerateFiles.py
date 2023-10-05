@@ -129,7 +129,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.write('print("Create packet")\n')
 
     if obj.IP_defined:
-        script.write(f'p = testutils.simpl_ip_packet(obj.pktLen, obj.eth_dst, obj.eth_src, obj.dl_vlan_enable, obj.vlan_vid, obj.vlan_pcp, obj.dl_vlan_cfi, obj.ip_src, obj.ip_dst, obj.ip_tos, obj.ip_ecn, obj.ip_dscp, obj.ip_ttl, obj.ip_id, obj.ip_ihl, obj.ip_options, obj.ip_proto)\n')
+        script.write(f'p = testutils.simple_ip_packet({obj.pktLen}, {obj.eth_dst}, {obj.eth_src}, {obj.dl_vlan_enable}, {obj.vlan_vid}, {obj.vlan_pcp}, {obj.dl_vlan_cfi}, {obj.ip_src}, {obj.ip_dst}, {obj.ip_tos}, {obj.ip_ecn}, {obj.ip_dscp}, {obj.ip_ttl}, {obj.ip_id}, {obj.ip_ihl}, {obj.ip_options}, {obj.ip_proto})\n')
     elif obj.eth_defined:
         script.write('p = testutils.simple_eth_packet(pktlen=pktlen)\n')
     script.write('\n')
@@ -281,7 +281,7 @@ def generateP4(throughput_defined, throughput_mode, full_obj):
     filep4.write('  state parse_pktgen_timer {\n')
     filep4.write('      packet.extract(hdr.timer);\n')
     if full_obj.eth_defined or full_obj.IP_defined or full_obj.tcp_defined or full_obj.udp_defined:
-        filep4.write('      transition parse_ethernet;;\n')
+        filep4.write('      transition parse_ethernet;\n')
     else:
         filep4.write('      transition accept;\n')
     filep4.write('  }\n')

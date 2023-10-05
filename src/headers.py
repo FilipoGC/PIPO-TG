@@ -25,6 +25,10 @@ class Header:
 			print("ERROR!\nThe header need a valid name and a size > 0")
 			sys.exit()
 
+		if self.size % 8 != 0:
+			print("ERROR!\nThe header size needs to be byte aligned")
+			sys.exit()
+
 	def validHeader(self):
 		if self.size <= 0 or len(self.fields) == 0:
 			print("Invalid header size\n")
