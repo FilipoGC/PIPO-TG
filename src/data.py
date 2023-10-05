@@ -81,6 +81,8 @@ class generator:
 		self.chksum = chksum
 		self.src =  src
 		self.dst =  dst
+		
+		self.IP_defined = True
 
 	def simpleIP(self, pktlen=100, eth_dst="00:01:02:03:04:05", eth_src="00:06:07:08:09:0a", dl_vlan_enable=False, vlan_vid=0, vlan_pcp=0, dl_vlan_cfi=0, ip_src="192.168.0.1", ip_dst="192.168.0.2", ip_tos=0, ip_ecn=None, ip_dscp=None, ip_ttl=64, ip_id=0x0001, ip_ihl=None, ip_options=False, ip_proto=0):
 
@@ -188,6 +190,10 @@ class generator:
 
 
 	def generate(self):
+		
+		if len(self.headers) == 0 and not self.eth_defined and not self.IP_defined and not self.udp_defined and not self.tcp_defined:
+			self.eth_defined = True		
+
 		generatePy(self.generation_port, self.channel, self.throughput_defined, self.throughput_mode, self.throughput, self)
 		generateP4(self.throughput_defined, self.throughput_mode, self)
 		generateHeader(self.headers, self.eth_defined, self.IP_defined, self.udp_defined, self.tcp_defined)

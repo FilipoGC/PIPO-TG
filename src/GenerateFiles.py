@@ -130,7 +130,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
 
     if obj.IP_defined:
         script.write(f'p = testutils.simpl_ip_packet(obj.pktLen, obj.eth_dst, obj.eth_src, obj.dl_vlan_enable, obj.vlan_vid, obj.vlan_pcp, obj.dl_vlan_cfi, obj.ip_src, obj.ip_dst, obj.ip_tos, obj.ip_ecn, obj.ip_dscp, obj.ip_ttl, obj.ip_id, obj.ip_ihl, obj.ip_options, obj.ip_proto)\n')
-    else:
+    elif obj.eth_defined:
         script.write('p = testutils.simple_eth_packet(pktlen=pktlen)\n')
     script.write('\n')
 
@@ -644,7 +644,6 @@ def generateHeader(header_list, eth_defined, IP_defined, udp_defined, tcp_define
 
 
     headers.write(' // Add more headers here.\n')
-    headers.write('}\n')
     headers.write('\n')
 
     headers.write('struct empty_header_t {}\n')
