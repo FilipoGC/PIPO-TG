@@ -280,7 +280,7 @@ def generateP4(throughput_defined, throughput_mode, full_obj):
 
     filep4.write('  state parse_pktgen_timer {\n')
     filep4.write('      packet.extract(hdr.timer);\n')
-    if full_obj.eth_defined:
+    if full_obj.eth_defined or full_obj.IP_defined or full_obj.tcp_defined or full_obj.udp_defined:
         filep4.write('      transition parse_ethernet;;\n')
     else:
         filep4.write('      transition accept;\n')
@@ -500,7 +500,7 @@ def generateHeader(header_list, eth_defined, IP_defined, udp_defined, tcp_define
     headers.write('\n')
 
 
-    if eth_defined:
+    if eth_defined or IP_defined or tcp_defined or udp_defined:
         headers.write('header ethernet_h {\n')
         headers.write(' mac_addr_t dst_addr;\n')
         headers.write(' mac_addr_t src_addr;\n')
@@ -526,7 +526,7 @@ def generateHeader(header_list, eth_defined, IP_defined, udp_defined, tcp_define
     headers.write('\n')
 
 
-    if IP_defined:
+    if eth_defined or IP_defined or tcp_defined or udp_defined:
         headers.write('header ipv4_h {\n')
         headers.write(' bit<4> version;\n')
         headers.write(' bit<4> ihl;\n')
@@ -556,7 +556,7 @@ def generateHeader(header_list, eth_defined, IP_defined, udp_defined, tcp_define
     headers.write('\n')
 
 
-    if tcp_defined:
+    if eth_defined or IP_defined or tcp_defined or udp_defined:
         headers.write('header tcp_h {\n')
         headers.write(' bit<16> src_port;\n')
         headers.write(' bit<16> dst_port;\n')
@@ -571,7 +571,7 @@ def generateHeader(header_list, eth_defined, IP_defined, udp_defined, tcp_define
         headers.write('}\n')
         headers.write('\n')
 
-    if udp_defined:
+    if eth_defined or IP_defined or tcp_defined or udp_defined:
         headers.write('header udp_h {\n')
         headers.write(' bit<16> src_port;\n')
         headers.write(' bit<16> dst_port;\n')
