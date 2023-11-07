@@ -20,7 +20,7 @@ ___
 
 ## Example
 To define the generated traffic, the user needs to write a simple Python script describing the traffic patterns in main.py, we can see a example below.
-```pyhton3
+```pyhton
 myTG = PipoGenerator()
 myTG.addGenerationPort(68)
 myTG.addOutputPort(5, 160, "100G")
