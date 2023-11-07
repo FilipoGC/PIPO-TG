@@ -21,19 +21,20 @@ ___
 ## Example
 To define the generated traffic, the user needs to write a simple Python script describing the traffic patterns in main.py, we can see a example below.
 ```pyhton
-myTG = PipoGenerator()
-myTG.addGenerationPort(68)
-myTG.addOutputPort(5, 160, "100G")
-myGenerator.addIP(dst = "10.0.0.2")
-customHeader = Header(name = "myHeader", size = 8)
-customHeader.addField(Field("metadata", 8))
-myTG.addHeader(customHeader)
-myTG.addTroughput(100,"meter")
-myTG.generate()
+
+myTG = PipoGenerator() #instatiante the traffic generator
+myTG.addGenerationPort(68) #define the generation port
+myTG.addOutputPort(5, 160, "100G") #physical port, port ID(D_P), portBW
+myGenerator.addIP(dst = "10.0.0.2") #set IP header with destination address
+customHeader = Header(name = "myHeader", size = 8) # create a 8 bits cutom header part 1
+customHeader.addField(Field("metadata", 8)) # create a 8 bits cutom header part 1
+myTG.addHeader(customHeader) # create a 8 bits cutom header part 3
+myTG.addTroughput(100,"meter") #define throughput(Mbps) abd the type(port_shapig or meter)
+myTG.generate() #start traffic generation
 
 ```
 
-In that example of PIPO-TG input code to generate IP packets at 100 Mbps with destination IP 10.0.0.2 and a custom header to be sent via physical port 5. Additionally, the user defines configuration details such as the pipeline generation port, port bandwidth, and the type of traffic limitation desired(ADDAQUI).
+In that example of PIPO-TG input code to generate IP packets at 100 Mbps with destination IP 10.0.0.2 and a custom header to be sent via physical port 5. Additionally, the user defines configuration details such as the pipeline generation port, port bandwidth, and the type of traffic limitation desired.
 
 ## Team
 
