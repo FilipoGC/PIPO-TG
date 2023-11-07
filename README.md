@@ -14,13 +14,14 @@ ___
 
 ___
 ## Requiriments
-*git
-*python3
-*Tofino Switch™
+
+- git
+- python3
+- Tofino Switch™
 
 ## Installation
 ```terminal
-https://github.com/FilipoGC/PIPO-TG.git
+$ git clone https://github.com/FilipoGC/PIPO-TG.git
 ```
 ## Usage
 
