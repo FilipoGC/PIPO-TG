@@ -18,6 +18,23 @@ ___
 
 ## Usage
 
+## Example
+To define the generated traffic, the user needs to write a simple Python script describing the traffic patterns in main.py, we can see a example below.
+```pyhton3
+myTG = PipoGenerator()
+myTG.addGenerationPort(68)
+myTG.addOutputPort(5, 160, "100G")
+myGenerator.addIP(dst = "10.0.0.2")
+customHeader = Header(name = "myHeader", size = 8)
+customHeader.addField(Field("metadata", 8))
+myTG.addHeader(customHeader)
+myTG.addTroughput(100,"meter")
+myTG.generate()
+
+```
+
+In that example of PIPO-TG input code to generate IP packets at 100 Mbps with destination IP 10.0.0.2 and a custom header to be sent via physical port 5. Additionally, the user defines configuration details such as the pipeline generation port, port bandwidth, and the type of traffic limitation desired(ADDAQUI).
+
 ## Team
 
 
