@@ -36,7 +36,7 @@ myGenerator.addIP(dst = "10.0.0.2")                #set IP header with destinati
 customHeader = Header(name = "myHeader", size = 8) #create a 8 bits cutom header part 1
 customHeader.addField(Field("metadata", 8))        #create a 8 bits cutom header part 1
 myTG.addHeader(customHeader)                       #create a 8 bits cutom header part 3
-myTG.addTroughput(100,"meter")                     #define throughput(Mbps) abd the type(port_shapig or meter)
+myTG.addTroughput(100,"meter")                     #define throughput(Mbps) and the type(port_shaping or meter)
 myTG.generate()                                    #start traffic generation
 
 ```
