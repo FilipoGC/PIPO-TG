@@ -13,9 +13,15 @@ ___
 </p>
 
 ___
+## Requiriments
+*git
+*python3
+*Tofino Switch™
 
 ## Installation
-
+```terminal
+https://github.com/FilipoGC/PIPO-TG.git
+```
 ## Usage
 
 ## Example
