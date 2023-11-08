@@ -6,6 +6,8 @@ PIPO-TG is positioned, focusing on the creation of a traffic generator specifica
 
 PIPO-TG extends Tofino traffic generation capabilities and provides features never seen in other Tofino-based traffic generators. In Figure below, we illustrate the entire traffic generation process: 1️⃣ users set the traffic generation parameters, 2️⃣ PIPO-TG generates traffic utilizing the Tofino traffic generation unit, 3️⃣ tailors it using the PIPO-TG P4 code, and 4️⃣ subsequently routes it to the user’s P4 code or the designated physical port.
 
+![Alt text](https://github.com/FilipoGC/PIPO-TG/blob/main/images/tg_mod.jpg)
+
 ___
 <p align="center">
   To keep updated about this project, please don't forget to star ⭐️ the repository.
