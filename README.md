@@ -117,7 +117,6 @@ The next example outlines the DDoS attack scenario. The user specifies a desired
 myTG = PipoGenerator()                             #instatiate the traffic generator
 myTG.addGenerationPort(68)                         #define the generation port
 myTG.addOutputPort(5, 160, "100G")                 #physical port, port ID(D_P), portBW
-myGenerator.addIP(dst = "10.0.0.2")                #set IP header with destination address
 
 myTG.addThroughput(10000,"meter")		   #define throughput(Mbps) and the type(port_shaping or meter)
 myTG.addIP(src="192.168.1.0", srcRandom = True, srcMask = 24, dst="192.168.2.2")
