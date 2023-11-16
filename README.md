@@ -81,6 +81,8 @@ NameTrafficGenerator.addOutputPort(port, channel, bw)
 ```
 ## Example
 To define the generated traffic, the user needs to write a simple Python script describing the traffic patterns in main.py, we can see a example below.
+In that example of PIPO-TG input code to generate IP packets at 100 Mbps with destination IP 10.0.0.2 and a custom header to be sent via physical port 5. Additionally, the user defines configuration details such as the pipeline generation port, port bandwidth, and the type of traffic limitation desired.
+
 ```python
 
 myTG = PipoGenerator()                             #instatiate the traffic generator
@@ -95,7 +97,32 @@ myTG.generate()                                    #start traffic generation
 
 ```
 
-In that example of PIPO-TG input code to generate IP packets at 100 Mbps with destination IP 10.0.0.2 and a custom header to be sent via physical port 5. Additionally, the user defines configuration details such as the pipeline generation port, port bandwidth, and the type of traffic limitation desired.
+In the code below, we presents the additional code necessary to generate burst traffic using PIPO-TG. In this example, we define that the bursts will be standard IP packets sent to port 5. Instead of limiting a throughput, we use the command **addVariance()** to define that we will have a throughput of 10 Gbps for 8s, followed by 90 Gbps for 2s. It means that we will have regular traffic of 10 Gbps, and every 8s, we will have a burst of 90 Gbps lasting 2s.
+
+```python
+
+myTG = PipoGenerator()                             #instatiate the traffic generator
+myTG.addGenerationPort(68)                         #define the generation port
+myTG.addOutputPort(5, 160, "100G")                 #physical port, port ID(D_P), portBW
+myGenerator.addIP(dst = "10.0.0.2")                #set IP header with destination address
+
+myTG.addVariance([10000, 90000], [8, 2])	   #([Throughputs], [Intervals])
+
+myTG.generate()                                    #start traffic generation
+```
+The next example outlines the DDoS attack scenario. The user specifies a desired throughput, in this case, 10 Gbps, and provides a pool of IP addresses for the attackers, each with an IP base and a mask. Attackers can use a portion of the available link bandwidth to send traffic randomly. The destination IP, representing the target address for the attackers, is defined. Traffic generation starts subsequently.
+
+```python
+
+myTG = PipoGenerator()                             #instatiate the traffic generator
+myTG.addGenerationPort(68)                         #define the generation port
+myTG.addOutputPort(5, 160, "100G")                 #physical port, port ID(D_P), portBW
+myGenerator.addIP(dst = "10.0.0.2")                #set IP header with destination address
+
+myTG.addThroughput(10000,"meter")		   #define throughput(Mbps) and the type(port_shaping or meter)
+myTG.addIP(src="192.168.1.0", srcRandom = True, srcMask = 24, dst="192.168.2.2")
+myTG.generate()                                    #start traffic generation
+```
 
 ## Team
 
