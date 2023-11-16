@@ -99,4 +99,10 @@ In that example of PIPO-TG input code to generate IP packets at 100 Mbps with de
 
 ## Team
 
+- **Filipo G. Costa**, Federal University of Pampa (UNIPAMPA), Brazil
+- **Francisco G. Vogt**, University of Campinas (UNICAMP), Brazil
+- **Fabricio Rodrıguez Cesen**, University of Campinas (UNICAMP), Brazil
+- **Ariel Goes de Castro**, University of Campinas (UNICAMP), Brazil
+- **Marcelo Caggiani Luizelli**, Federal University of Pampa (UNIPAMPA), Brazil 
+- **Christian Esteve Rothenberg**, University of Campinas (UNICAMP), Brazil
 
