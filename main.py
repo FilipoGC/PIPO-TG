@@ -21,4 +21,4 @@ Gerador.addThroughput(3000, "port_shaping") #Define the throughput in Mbps and t
 #Gerador.addHeader(pipoHeader)
 
 
-#Gerador.generate()
+Gerador.generate()
