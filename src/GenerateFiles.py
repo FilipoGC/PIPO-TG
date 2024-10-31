@@ -117,7 +117,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.write('\n')
 
     script.write('app_id = g_timer_app_id\n')
-    script.write('pktlen = {obj.pktLen}\n')
+    script.write(f'pktlen = {obj.pktLen}\n')
     script.write('pgen_pipe_id = 0\n')
     script.write('src_port = 68\n')
     script.write('p_count = 1  # packets per batch\n')
