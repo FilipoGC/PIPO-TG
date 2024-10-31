@@ -117,7 +117,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.write('\n')
 
     script.write('app_id = g_timer_app_id\n')
-    script.write('pktlen = 1024\n')
+    script.write('pktlen = {obj.pktLen}\n')
     script.write('pgen_pipe_id = 0\n')
     script.write('src_port = 68\n')
     script.write('p_count = 1  # packets per batch\n')
@@ -137,7 +137,7 @@ def generatePy(defaultPort, HWport, throughput_defined, throughput_mode, through
     script.write('print("enable pktgen port")\n')
     script.write('\n')
 
-    script.write('pktgen_port_cfg_table.entry_add(\n')
+    script.write('pktgen_port_cfg_table.entry_mod(\n')
     script.write('  target,\n')
     script.write("  [pktgen_port_cfg_table.make_key([gc.KeyTuple('dev_port', src_port)])],\n")
     script.write("  [pktgen_port_cfg_table.make_data([gc.DataTuple('pktgen_enable', bool_val=True)])])\n")

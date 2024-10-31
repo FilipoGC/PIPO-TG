@@ -69,7 +69,7 @@ class generator:
 		self.channel = channel
 		self.port_bw = bw
 
-	def addIP(self, pktlen=100, eth_dst="00:01:02:03:04:05", eth_src="00:06:07:08:09:0a", dl_vlan_enable=False, vlan_vid=0, vlan_pcp=0, dl_vlan_cfi=0, ip_src="192.168.0.1", ip_dst="192.168.0.2", ip_tos=0, ip_ecn=None, ip_dscp=None, ip_ttl=64, ip_id=0x0001, ip_ihl=None, ip_options=False, ip_proto=0):
+	def addIP(self, pktlen=64, eth_dst="00:01:02:03:04:05", eth_src="00:06:07:08:09:0a", dl_vlan_enable=False, vlan_vid=0, vlan_pcp=0, dl_vlan_cfi=0, ip_src="192.168.0.1", ip_dst="192.168.0.2", ip_tos=0, ip_ecn=None, ip_dscp=None, ip_ttl=64, ip_id=0x0001, ip_ihl=None, ip_options=False, ip_proto=0):
 
 		"""
 		Return a simple dataplane IP packet
