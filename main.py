@@ -5,7 +5,7 @@ Gerador = generator("pipo")
 
 Gerador.addGenerationPort(68)
 Gerador.addOutputPort(5, 160, "100G") #Physical Port, Port ID(D_P), Port bw
-Gerador.addIP(ip_dst="10.2.2.2", ip_src = "10.2.2.1", pkt_len = 1024)
+Gerador.addIP(ip_dst="10.2.2.2", ip_src = "10.2.2.1", pktlen = 1024)
 Gerador.addThroughput(3000, "port_shaping") #Define the throughput in Mbps and the mode (port_shaping or meter)
 
 
