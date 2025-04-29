@@ -27,6 +27,7 @@ $ git clone https://github.com/FilipoGC/PIPO-TG.git
 ## How to run
 - Prepare the device that will receive the traffic
 - Change "main.py" according to the desired traffic, and with the correct port configuration
+  *working in bf-sde 9.12.0
   
 ```terminal
 $ python3 main.py
