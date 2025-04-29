@@ -24,6 +24,14 @@ ___
 ```terminal
 $ git clone https://github.com/FilipoGC/PIPO-TG.git
 ```
+## How to run
+- Prepare the device that will receive the traffic
+- Change "main.py" according to the desired traffic, and with the correct port configuration
+  
+```terminal
+$ python3 main.py
+$ ./execute.sh
+```
 ## Usage
 #Functions
 ```python
