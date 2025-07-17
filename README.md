@@ -25,6 +25,7 @@ ___
 $ git clone https://github.com/FilipoGC/PIPO-TG.git
 ```
 ## How to run
+- set environment variables in Tofino
 - Prepare the device that will receive the traffic
 - Change "main.py" according to the desired traffic, and with the correct port configuration
 
@@ -32,7 +33,7 @@ $ git clone https://github.com/FilipoGC/PIPO-TG.git
   
 ```terminal
 $ python3 main.py
-$ ./execute.sh
+$ ./execut.sh
 ```
 ## Usage
 #Functions
