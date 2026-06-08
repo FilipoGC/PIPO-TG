@@ -1,187 +1,206 @@
-from src.GenerateFiles import *
-from src.headers import *
+import sys
 
-class generator:
+from src.GenerateFiles import (
+    generateRunPy,
+    generateP4,
+    generateHeader,
+    generateUtil,
+    generatePortConfig,
+    generateExec,
+)
+from src.headers import Header
 
-	def __init__(self, name):
-		#config params
-		self.name = name
-		self.p4_code = ''
-		self.generation_port = 68
-		self.output_port = 0
-		self.channel = 0
-		self.port_bw = ''
-		self.throughput_defined = False
-		self.throughput = 0
-		self.throughput_mode = '' #meter or port_shaping
-		self.pktLen = 64
+class Flow:
+    def __init__(self, flow_id: int):
+        self.id = int(flow_id)
 
-		#list of customized headers
-		self.headers = []
+        self.out_port = None
+        self.out_dev_port = None
+        self.out_bw = None
 
-		#header params
-		self.version = 4
-		self.ihl = 5
-		self.tos = '0x0'
-		self.len =  None
-		self.frag = 0
-		self.flags = None
-		self.ttl = 61
-		self.proto = 'udp'
-		self.chksum = '0x66df'
-		self.src =  None
-		self.dst =  None
-		self.hwsrc =  None
-		self.hwdst =  None
-		self.type = 'Ipv4'
-		self.data =  None
+        self.pktLen = 64
+        self.eth_dst = '00:01:02:03:04:05'
+        self.eth_src = '00:06:07:08:09:0a'
+        self.ether_type = 0x0800
 
-		#defineds
-		self.eth_defined = False
-		self.IP_defined = False
-		self.udp_defined = False
-		self.tcp_defined = False
+        self.ip_src = '192.168.0.1'
+        self.ip_dst = '192.168.0.2'
+        self.ip_tos = 0
+        self.ip_ttl = 64
+        self.ip_id = 0x0001
+        self.ip_ihl = 0
+        self.ip_proto = 0
 
-		#new params
-		self.eth_dst = "00:01:02:03:04:05"
-		self.eth_src = "00:06:07:08:09:0a"
-		self.ip_src = "192.168.0.1"
-		self.ip_dst = "192.168.0.2"
-		self.ip_proto = 0
-		self.ip_tos = 0
-		self.vlan_vid = 0
-		self.vlan_pcp = 0
-		self.dl_vlan_cfi = 0
-		self.dl_vlan_enable = False
-		self.ip_ecn=None
-		self.ip_dscp=None
-		self.ip_ttl=64
-		self.ip_id=0x0001
-		self.ip_ihl=None
-		self.ip_options=False
+        self.ip_src_random = False
+        self.ip_src_mask = '/24'
 
+        self.throughput_defined = False
+        self.throughput = 0
+        self.throughput_pattern = None
+        self.throughput_pattern_sec = None
+        self.duration_sec = None
 
-	def addGenerationPort(self, port):
-		self.generation_port = port
-	
-	def addOutputPort(self, port, channel, bw):
-		self.output_port = port
-		self.channel = channel
-		self.port_bw = bw
+    def outputPort(self, port, dev_port: int, bw: str = None):
+        self.out_port = str(port)
+        self.out_dev_port = int(dev_port)
+        self.out_bw = None if bw is None else str(bw)
 
-	def addIP(self, pktlen=64, eth_dst="00:01:02:03:04:05", eth_src="00:06:07:08:09:0a", dl_vlan_enable=False, vlan_vid=0, vlan_pcp=0, dl_vlan_cfi=0, ip_src="192.168.0.1", ip_dst="192.168.0.2", ip_tos=0, ip_ecn=None, ip_dscp=None, ip_ttl=64, ip_id=0x0001, ip_ihl=None, ip_options=False, ip_proto=0):
+    def addIP(
+        self,
+        pktlen: int = 64,
+        eth_dst: str = '00:01:02:03:04:05',
+        eth_src: str = '00:06:07:08:09:0a',
+        ip_src: str = '192.168.0.1',
+        ip_dst: str = '192.168.0.2',
+        ip_tos: int = 0,
+        ip_ttl: int = 64,
+        ip_id: int = 0x0001,
+        ip_ihl=None,
+        ip_proto: int = 0,
+        ether_type: int = 0x0800,
+        srcRandom: bool = False,
+        srcMask: str = '/24',
+        #**_ignored,
+    ):
+        self.pktLen = int(pktlen)
+        self.eth_dst = str(eth_dst)
+        self.eth_src = str(eth_src)
+        self.ether_type = int(ether_type)
 
-		"""
-		Return a simple dataplane IP packet
+        self.ip_src = str(ip_src)
+        self.ip_dst = str(ip_dst)
+        self.ip_tos = int(ip_tos)
+        self.ip_ttl = int(ip_ttl)
+        self.ip_id = int(ip_id)
+        self.ip_proto = int(ip_proto)
 
-		Supports a few parameters:
-		@param len Length of packet in bytes w/o CRC
-		@param eth_dst Destinatino MAC
-		@param eth_src Source MAC
-		@param dl_vlan_enable True if the packet is with vlan, False otherwise
-		@param vlan_vid VLAN ID
-		@param vlan_pcp VLAN priority
-		@param ip_src IP source
-		@param ip_dst IP destination
-		@param ip_tos IP ToS
-		@param ip_ecn IP ToS ECN
-		@param ip_dscp IP ToS DSCP
-		@param ip_ttl IP TTL
-		@param ip_id IP ID
+        if ip_ihl is None:
+            self.ip_ihl = 0
+        else:
+            try:
+                self.ip_ihl = int(ip_ihl)
+            except Exception:
+                self.ip_ihl = 0
 
-		Generates a simple IP packet.  Users
-		shouldn't assume anything about this packet other than that
-		it is a valid ethernet/IP frame.
-		"""
-		self.IP_defined = True
+        self.ip_src_random = bool(srcRandom)
+        self.ip_src_mask = str(srcMask)
 
-		self.pktLen = pktlen
-		self.hwdst = eth_dst
-		self.hwsrc = eth_src
-		self.src = ip_src
-		self.dst = ip_dst
-		#self.ttl = ip_ttl
-		#self.ihl = ip_ihl
-		self.tos = ip_tos
-		self.proto = ip_proto
+    def addThroughput(self, throughput, durations=None):
+        self.throughput_defined = True
 
-		self.eth_dst = eth_dst
-		self.eth_src = eth_src
-		self.ip_src = ip_src
-		self.ip_dst = ip_dst
-		self.ip_proto = ip_proto
-		self.ip_tos = ip_tos
-		self.vlan_vid = vlan_vid
-		self.vlan_pcp = vlan_pcp
-		self.dl_vlan_cfi = dl_vlan_cfi
-		self.dl_vlan_enable = dl_vlan_enable
-		self.ip_ecn= ip_ecn
-		self.ip_dscp= ip_dscp
-		self.ip_ttl= ip_ttl
-		self.ip_id= ip_id
-		self.ip_ihl= ip_ihl
-		self.ip_options= ip_options
-    
-	def addEthernet(self, hwsrc = None, hwdst = None, type = 'Ipv4',data = None):
-		self.hwsrc =  hwsrc
-		self.hwdst =  hwdst
-		self.type = type
-		self.data =  data	
-     
-	def addThroughput(self, throughput, mode):
-		self.throughput_defined = True
-		self.throughput = throughput
-		self.throughput_mode = mode
+        if durations is not None:
+            self.throughput = list(throughput)
+            self.throughput_pattern = list(throughput)
+            self.throughput_pattern_sec = list(durations)
+            return
 
-	def addHeader(self, header):	
-		if isinstance(header, Header) or isinstance(header, list):
+        self.throughput = throughput
+        self.throughput_pattern = None
+        self.throughput_pattern_sec = None
 
-			if isinstance(header, list):
-
-				if len(header) ==0:
-					print("ERROR! The list of headers is invalid!")
-					sys.exit()
-
-				for fi in header:
-					if not isinstance(fi, Header):
-						print("ERROR! The list of headers is invalid!")
-						sys.exit()
-					
-					if not fi.validHeader():
-						print("ERROR! The list of headers is invalid!")
-						sys.exit()
-
-				self.headers.extend(header)
-
-			else:
-				if not header.validHeader():
-						print("ERROR! The header is invalid!")
-						sys.exit()
-	
-				self.headers.append(header)
+    def addDuration(self, duration_sec: float):
+        self.duration_sec = float(duration_sec)
 
 
-			#print("Sucessfull!")
+class Generator:
+    def __init__(self, name: str = 'pipo'):
+        self.name = str(name)
+        self.generation_port = 68
+        self.throughput_mode = 'meter'
+        self.graph_enabled = False
+        self.headers = []
+        self.flows = []
 
-		else:
-			print("ERROR! The list of fields is invalid!")
-			sys.exit()
-
-	def printHeaders(self):
-
-		print("Customized headers defined:")
-		for hdr in self.headers:
-			hdr.printHeader()
+    def addGenerationPort(self, port: int):
+        self.generation_port = int(port)
 
 
-	def generate(self):
-		
-		if not self.eth_defined and not self.IP_defined and not self.udp_defined and not self.tcp_defined:
-			self.eth_defined = True		
+    #isso aqui ta meio atoa
+    def setThroughputMode(self, mode: str):
+        self.throughput_mode = mode
 
-		generatePy(self.generation_port, self.channel, self.throughput_defined, self.throughput_mode, self.throughput, self)
-		generateP4(self.throughput_defined, self.throughput_mode, self)
-		generateHeader(self.headers, self.eth_defined, self.IP_defined, self.udp_defined, self.tcp_defined)
-		generateUtil()
-		generatePortConfig(self.output_port, self.port_bw)
-		self.printHeaders()
+    def enableGraph(self):
+        self.graph_enabled = True
+
+    def addHeader(self, header):
+        if isinstance(header, Header):
+            self.headers.append(header)
+            return
+        if isinstance(header, list) and all(isinstance(item, Header) for item in header):
+            self.headers.extend(header)
+            return
+        print('ERROR! The header is invalid!')
+        sys.exit(1)
+
+    def addFlow(self) -> Flow:
+        flow = Flow(flow_id=len(self.flows))
+        self.flows.append(flow)
+        return flow
+
+    def printSummary(self):
+        print('\n================ PIPO-TG CONFIGURATION ================')
+        print(f'Generation port: {self.generation_port}')
+        print(f'Throughput mode: {self.throughput_mode}')
+        print(f"Graph: {'enabled' if self.graph_enabled else 'disabled'}")
+        print(f'Flows: {len(self.flows)}')
+
+        for flow in self.flows:
+            random_src = ''
+            if flow.ip_src_random:
+                random_src = f' random(srcMask={flow.ip_src_mask})'
+
+            out = '(not set)'
+            if flow.out_port is not None and flow.out_dev_port is not None:
+                bw = f', bw={flow.out_bw}' if flow.out_bw else ''
+                out = f'{flow.out_port} (dev_port={flow.out_dev_port}{bw})'
+
+            if flow.throughput_pattern is not None and flow.throughput_pattern_sec is not None:
+                parts = []
+                for rate, sec in zip(flow.throughput_pattern, flow.throughput_pattern_sec):
+                    parts.append(f'{rate}Mbps/{sec}s')
+                throughput = 'variance [' + ', '.join(parts) + ']'
+            else:
+                throughput = f'{flow.throughput} Mbps'
+
+            duration = 'INF' if flow.duration_sec is None else f'{flow.duration_sec}s'
+            print(
+                f'  - flow{flow.id}: out={out} len={flow.pktLen} '
+                f'src={flow.ip_src} dst={flow.ip_dst}{random_src} '
+                f'tos={flow.ip_tos} ttl={flow.ip_ttl} id={hex(flow.ip_id)} proto={flow.ip_proto}\n'
+                f'      throughput={throughput} duration={duration}\n'
+            )
+
+        print('=======================================================\n')
+
+    def generate(self):
+        if not self.flows:
+            raise ValueError('Configure at least one flow before calling generate().')
+
+        pktlens = {int(flow.pktLen) for flow in self.flows}
+        if len(pktlens) > 1:
+            raise ValueError(
+                'Current version requires a single pktLen for all flows. '
+                f'Found: {sorted(pktlens)}'
+            )
+
+        ports = []
+        seen = set()
+        for flow in self.flows:
+            if flow.out_port is None:
+                continue
+            key = (str(flow.out_port), str(flow.out_bw) if flow.out_bw else '10G')
+            if key in seen:
+                continue
+            seen.add(key)
+            ports.append(key)
+
+        if not ports:
+            raise ValueError('Each flow must define an outputPort(port, dev_port, bw).')
+
+        generateRunPy(self)
+        generateP4(self)
+        generateHeader(self.headers)
+        generateUtil()
+        generatePortConfig(ports)
+        generateExec(self.graph_enabled)
+        self.printSummary()
