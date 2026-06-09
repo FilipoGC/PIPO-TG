@@ -66,7 +66,7 @@ tg.generate()
 ```
 The `addGenerationPort()` method defines the internal Tofino packet-generation port used by the generated control-plane configuration. The `setThroughputMode()` method selects the throughput-control mechanism used by the generated files (actually legacy function). The `enableGraph()` method enables the runtime traffic graph using **plotext lib** in the generated execution script.
 
-Example of output with `enableGraph()`:
+Example of real-time terminal output with `enableGraph()`:
 ![](images/print.png)
 
 ## Custom header definition
